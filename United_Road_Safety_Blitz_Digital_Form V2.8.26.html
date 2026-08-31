@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safety Blitz — Vehicle Inspection Form</title>
+<style>
+  :root {
+    --navy: #1F3864;
+    --navy-light: #D9E2F3;
+    --red: #C00000;
+    --red-bg: #FDE9D9;
+    --green: #2E7D32;
+    --green-bg: #E8F5E9;
+    --gray-line: #D0D0D0;
+    --gray-text: #595959;
+    --shade: #F7F8FA;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Calibri, Roboto, Arial, sans-serif;
+    background: #EEF0F3;
+    color: #1a1a1a;
+    padding: 16px;
+  }
+  .sheet {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 14px 24px;
+    border-bottom: 3px solid var(--navy);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header img { height: 42px; display: block; }
+  .header .title { text-align: right; }
+  .header .title h1 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+    color: var(--navy);
+  }
+  .header .title p {
+    margin: 2px 0 0 0;
+    font-size: 13px;
+    color: var(--gray-text);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--gray-line);
+  }
+  .field {
+    border-bottom: 1px solid var(--gray-line);
+    border-right: 1px solid var(--gray-line);
+    padding: 8px 12px;
+  }
+  .field:nth-child(2n) { border-right: none; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 3px;
+  }
+  .field input {
+    width: 100%;
+    border: none;
+    font-size: 14px;
+    padding: 3px 0;
+    background: transparent;
+    font-family: inherit;
+  }
+  .field input:focus { outline: none; border-bottom: 1px solid var(--navy); }
+
+  .oos-banner {
+    margin: 16px 24px 0 24px;
+    padding: 12px 16px;
+    background: var(--red-bg);
+    border: 1px solid #F0B27A;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--red);
+    font-weight: 700;
+    transition: all 0.15s ease;
+  }
+  .oos-banner.inactive {
+    background: var(--shade);
+    border-color: var(--gray-line);
+    color: var(--gray-text);
+    font-weight: 600;
+  }
+  .oos-banner .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--red); flex-shrink: 0;
+  }
+  .oos-banner.inactive .dot { background: #9AA0A6; }
+
+  .instructions {
+    margin: 14px 24px 0 24px;
+    font-size: 12.5px;
+    color: #333;
+    line-height: 1.55;
+  }
+  .instructions strong { color: #111; }
+  .instructions .legend {
+    margin-top: 6px;
+    font-style: italic;
+    color: var(--red);
+    font-size: 12px;
+  }
+
+  .section-title {
+    margin: 20px 24px 0 24px;
+    padding: 8px 12px;
+    background: var(--navy-light);
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 5px;
+  }
+
+  .item-list { margin: 0 24px 8px 24px; }
+  .item {
+    border-bottom: 1px solid var(--gray-line);
+    padding: 10px 4px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+  }
+  .item:last-child { border-bottom: none; }
+  .item-text .fn {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .item-text .fn .oos-star { color: var(--red); font-weight: 800; margin-right: 3px; }
+  .item-text .desc {
+    font-size: 12px;
+    color: var(--gray-text);
+    font-style: italic;
+    margin-top: 2px;
+  }
+  .toggle-group {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .toggle-btn {
+    border: 1px solid var(--gray-line);
+    background: #fff;
+    border-radius: 5px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.12s ease;
+    min-width: 58px;
+  }
+  .toggle-btn.pass.active {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .toggle-btn.fail.active {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .defect-note {
+    grid-column: 1 / -1;
+    display: none;
+    margin-top: 6px;
+  }
+  .defect-note.show { display: block; }
+  .defect-note input {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    border: 1px solid var(--red);
+    border-radius: 5px;
+    font-family: inherit;
+    background: #FFFBFA;
+  }
+  .defect-note input:focus { outline: none; }
+
+  .notes-section {
+    margin: 20px 24px 4px 24px;
+  }
+  .notes-section label {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--navy);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .notes-section textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid var(--gray-line);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+  }
+  .notes-section textarea:focus { outline: none; border-color: var(--navy); }
+
+  .sig-row {
+    margin: 18px 24px 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .sig-row .field label { font-size: 11px; }
+  .sig-row .field { border: none; padding: 4px 0; }
+
+  .actions {
+    margin: 22px 24px 0 24px;
+    padding: 16px 0 22px 0;
+    border-top: 1px solid var(--gray-line);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    border: none;
+    border-radius: 6px;
+    padding: 11px 18px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--navy); color: #fff; }
+  .btn-primary:hover { background: #16294a; }
+  .btn-secondary { background: #fff; color: var(--navy); border: 1.5px solid var(--navy); }
+  .btn-secondary:hover { background: var(--navy-light); }
+  .btn-ghost { background: #fff; color: var(--gray-text); border: 1.5px solid var(--gray-line); }
+  .btn-ghost:hover { background: var(--shade); }
+
+  .status-msg {
+    margin: 10px 24px 0 24px;
+    font-size: 12.5px;
+    color: var(--green);
+    font-weight: 600;
+    min-height: 16px;
+  }
+
+  .summary-count {
+    margin: 8px 24px 0 24px;
+    font-size: 12px;
+    color: var(--gray-text);
+  }
+  .summary-count b { color: #1a1a1a; }
+
+  @media (max-width: 560px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .field:nth-child(2n) { border-right: 1px solid var(--gray-line); }
+    .sig-row { grid-template-columns: 1fr; }
+    .item { grid-template-columns: 1fr; }
+    .toggle-group { margin-top: 4px; }
+    .header { flex-direction: column; align-items: flex-start; }
+    .header .title { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <div class="header">
+    <img src="data:image/jpeg;base64,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" alt="United Road logo">
+    <div class="title">
+      <h1>SAFETY BLITZ</h1>
+      <p>Vehicle Inspection Form — Digital</p>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="field"><label>Date &amp; Time</label><input type="datetime-local" id="f-datetime"></div>
+    <div class="field"><label>Truck #</label><input type="text" id="f-truck" placeholder="e.g. 4521"></div>
+    <div class="field"><label>Inspector</label><input type="text" id="f-inspector" placeholder="Full name"></div>
+    <div class="field"><label>Driver Name</label><input type="text" id="f-drivername" placeholder="Full name"></div>
+    <div class="field"><label>Location of Inspection (Terminal)</label>
+      <select id="f-location" style="width:100%; border:none; font-size:14px; padding:3px 0; background:transparent; font-family:inherit;">
+        <option value="">Select...</option>
+        <optgroup label="Northeast">
+          <option value="Ayer">Ayer</option>
+          <option value="Baltimore">Baltimore</option>
+          <option value="Brighton">Brighton</option>
+          <option value="Davisville">Davisville</option>
+          <option value="Newark">Newark</option>
+          <option value="Ontario">Ontario</option>
+          <option value="Petersburg">Petersburg</option>
+          <option value="Pilot">Pilot</option>
+          <option value="Romulus">Romulus</option>
+          <option value="Twin Oaks">Twin Oaks</option>
+        </optgroup>
+        <optgroup label="South">
+          <option value="Brunswick">Brunswick</option>
+          <option value="Columbia">Columbia</option>
+          <option value="Lawrenceville">Lawrenceville</option>
+          <option value="Orlando">Orlando</option>
+          <option value="Palm Center">Palm Center</option>
+          <option value="Special Services">Special Services</option>
+          <option value="Spring Hill">Spring Hill</option>
+          <option value="Tampa">Tampa</option>
+        </optgroup>
+        <optgroup label="West">
+          <option value="Anchorage">Anchorage</option>
+          <option value="Denver">Denver</option>
+          <option value="Hammond">Hammond</option>
+          <option value="Lafayette">Lafayette</option>
+          <option value="Marysville">Marysville</option>
+          <option value="Oklahoma City">Oklahoma City</option>
+          <option value="Phoenix">Phoenix</option>
+          <option value="Salt Lake City">Salt Lake City</option>
+          <option value="San Antonio">San Antonio</option>
+          <option value="Vancouver">Vancouver</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field"><label>Driver Number</label><input type="text" id="f-driverno" placeholder="Driver #"></div>
+    <div class="field"><label>Business Unit (Truck's Home Terminal)</label>
+      <select id="f-bu" style="width:100%; border:none; font-size:14px; padding:3px 0; background:transparent; font-family:inherit;">
+        <option value="">Select...</option>
+        <optgroup label="Northeast">
+          <option value="Ayer">Ayer</option>
+          <option value="Baltimore">Baltimore</option>
+          <option value="Brighton">Brighton</option>
+          <option value="Davisville">Davisville</option>
+          <option value="Newark">Newark</option>
+          <option value="Ontario">Ontario</option>
+          <option value="Petersburg">Petersburg</option>
+          <option value="Pilot">Pilot</option>
+          <option value="Romulus">Romulus</option>
+          <option value="Twin Oaks">Twin Oaks</option>
+        </optgroup>
+        <optgroup label="South">
+          <option value="Brunswick">Brunswick</option>
+          <option value="Columbia">Columbia</option>
+          <option value="Lawrenceville">Lawrenceville</option>
+          <option value="Orlando">Orlando</option>
+          <option value="Palm Center">Palm Center</option>
+          <option value="Special Services">Special Services</option>
+          <option value="Spring Hill">Spring Hill</option>
+          <option value="Tampa">Tampa</option>
+        </optgroup>
+        <optgroup label="West">
+          <option value="Anchorage">Anchorage</option>
+          <option value="Denver">Denver</option>
+          <option value="Hammond">Hammond</option>
+          <option value="Lafayette">Lafayette</option>
+          <option value="Marysville">Marysville</option>
+          <option value="Oklahoma City">Oklahoma City</option>
+          <option value="Phoenix">Phoenix</option>
+          <option value="Salt Lake City">Salt Lake City</option>
+          <option value="San Antonio">San Antonio</option>
+          <option value="Vancouver">Vancouver</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field"><label>Truck Type</label>
+      <select id="f-trucktype" style="width:100%; border:none; font-size:14px; padding:3px 0; background:transparent; font-family:inherit;">
+        <option value="">Select...</option>
+        <option value="IC">IC (Independent Contractor)</option>
+        <option value="Company">Company</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="oos-banner inactive" id="oosBanner">
+    <span class="dot"></span>
+    <span id="oosBannerText">No Out-of-Service items reported yet.</span>
+  </div>
+
+  <div class="instructions">
+    <strong>Drivers:</strong> An OOS item must be immediately called in to Fleet Support (855-553-0505) and repairs scheduled.<br>
+    Other inspection items must be repaired within THREE days of this report.<br>
+    Proof of repair should be provided electronically to midwestmaintenance@unitedroad.com.
+    <div class="legend">* Indicates an Out-of-Service issue</div>
+  </div>
+
+  <div id="sectionsContainer"></div>
+
+  <div class="summary-count" id="summaryCount"></div>
+
+  <div class="notes-section">
+    <label for="f-notes">Notes</label>
+    <textarea id="f-notes" placeholder="Additional notes for this inspection..."></textarea>
+  </div>
+
+  <div class="sig-row">
+    <div class="field"><label>Driver Signature (type name)</label><input type="text" id="f-driversig" placeholder="Driver signature"></div>
+    <div class="field"><label>Inspector Signature (type name)</label><input type="text" id="f-inspectorsig" placeholder="Inspector signature"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="sendReportToSafety()">Send Completed Report to Safety</button>
+    <button class="btn btn-ghost" onclick="resetForm()">Reset Form</button>
+  </div>
+  <div class="status-msg" id="statusMsg"></div>
+
+</div>
+
+<script>
+const SECTIONS = [
+  {
+    title: "Documentation (Check in Cab)",
+    items: [
+      { fn: "Insurance card", desc: "", oos: false },
+      { fn: "Registration (Truck and Trailer)", desc: "", oos: false },
+      { fn: "DOT annual inspection (Truck and Trailer)", desc: "", oos: false },
+      { fn: "Paper log-book (backup)", desc: "", oos: false },
+      { fn: "Is ELD mounted where the driver can view it from normal seated position?", desc: "", oos: false },
+      { fn: "Buckeye fire extinguisher & standard fire extinguisher", desc: "Both extinguishers must be charged, not expired, and secured", oos: false },
+      { fn: "Safety triangles", desc: "Must have 3 triangles in working order", oos: false }
+    ]
+  },
+  {
+    title: "Vehicle & Equipment Inspection",
+    items: [
+      { fn: "Look under hood for oil, fuel, power steering leaks", desc: "", oos: false },
+      { fn: "Tires (Drive / Trailer)", desc: "Tires with less than 2/32\" of tread should be replaced. If tire is worn to the wear bar, tire should be replaced.", oos: true },
+      { fn: "Steer tires", desc: "Bald tires will have less than 4/32\" of tread", oos: true },
+      { fn: "Headlights, high / low beam", desc: "Must work", oos: false },
+      { fn: "Marker lights", desc: "All marker lights must work", oos: false },
+      { fn: "Turn signals", desc: "Turn signals, brake lights work properly", oos: false },
+      { fn: "License plate light", desc: "Must work", oos: false },
+      { fn: "Any item loose inside vehicle frame", desc: "No loose items are allowed, no dragging chains. Everything must be strapped down.", oos: false },
+      { fn: "Condition of straps", desc: "Damaged strap, 1/8\" cut / frayed must be replaced", oos: false },
+      { fn: "Wheel seals", desc: "Oil should not be leaking out of the wheel hub", oos: false },
+      { fn: "Cracks", desc: "No cracks in the frame, decks, or superstructure", oos: false },
+      { fn: "Door decals", desc: "All required information is on truck and trailer", oos: false }
+    ]
+  }
+];
+
+const state = {}; // itemId -> { status: 'pass'|'fail'|null, note: string, oos: bool, fn: string }
+
+function buildForm() {
+  const container = document.getElementById('sectionsContainer');
+  let idx = 0;
+  SECTIONS.forEach(section => {
+    const secEl = document.createElement('div');
+    secEl.className = 'section-title';
+    secEl.textContent = section.title;
+    container.appendChild(secEl);
+
+    const listEl = document.createElement('div');
+    listEl.className = 'item-list';
+
+    section.items.forEach(item => {
+      const id = 'item-' + (idx++);
+      state[id] = { status: null, note: '', oos: item.oos, fn: item.fn, section: section.title };
+
+      const itemEl = document.createElement('div');
+      itemEl.className = 'item';
+      itemEl.innerHTML = `
+        <div class="item-text">
+          <div class="fn">${item.oos ? '<span class="oos-star">*</span>' : ''}${item.fn}</div>
+          ${item.desc ? `<div class="desc">${item.desc}</div>` : ''}
+        </div>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn pass" data-id="${id}" data-val="pass">Pass</button>
+          <button type="button" class="toggle-btn fail" data-id="${id}" data-val="fail">Fail</button>
+        </div>
+        <div class="defect-note" id="note-wrap-${id}">
+          <input type="text" id="note-${id}" placeholder="Describe the defect / issue found...">
+        </div>
+      `;
+      listEl.appendChild(itemEl);
+    });
+    container.appendChild(listEl);
+  });
+
+  container.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const val = btn.dataset.val;
+      const current = state[id].status;
+      const newStatus = current === val ? null : val;
+      state[id].status = newStatus;
+
+      const group = btn.parentElement;
+      group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      if (newStatus) group.querySelector(`[data-val="${newStatus}"]`).classList.add('active');
+
+      const noteWrap = document.getElementById('note-wrap-' + id);
+      if (newStatus === 'fail') {
+        noteWrap.classList.add('show');
+      } else {
+        noteWrap.classList.remove('show');
+        document.getElementById('note-' + id).value = '';
+        state[id].note = '';
+      }
+      updateOOSBanner();
+      updateSummary();
+    });
+  });
+
+  container.querySelectorAll('.defect-note input').forEach(inp => {
+    inp.addEventListener('input', (e) => {
+      const id = e.target.id.replace('note-', '');
+      state[id].note = e.target.value;
+    });
+  });
+}
+
+function updateOOSBanner() {
+  const banner = document.getElementById('oosBanner');
+  const text = document.getElementById('oosBannerText');
+  const hasOOSFail = Object.values(state).some(s => s.oos && s.status === 'fail');
+  if (hasOOSFail) {
+    banner.classList.remove('inactive');
+    text.textContent = 'OUT-OF-SERVICE ITEM FAILED — Driver must call Fleet Support immediately: 855-553-0505';
+  } else {
+    banner.classList.add('inactive');
+    text.textContent = 'No Out-of-Service items reported yet.';
+  }
+}
+
+function updateSummary() {
+  const total = Object.keys(state).length;
+  const passed = Object.values(state).filter(s => s.status === 'pass').length;
+  const failed = Object.values(state).filter(s => s.status === 'fail').length;
+  const remaining = total - passed - failed;
+  document.getElementById('summaryCount').innerHTML =
+    `<b>${passed}</b> passed &nbsp;•&nbsp; <b>${failed}</b> failed &nbsp;•&nbsp; <b>${remaining}</b> remaining of <b>${total}</b> items`;
+}
+
+function getMeta() {
+  return {
+    datetime: document.getElementById('f-datetime').value,
+    truck: document.getElementById('f-truck').value,
+    inspector: document.getElementById('f-inspector').value,
+    drivername: document.getElementById('f-drivername').value,
+    location: document.getElementById('f-location').value,
+    driverno: document.getElementById('f-driverno').value,
+    bu: document.getElementById('f-bu').value,
+    trucktype: document.getElementById('f-trucktype').value,
+    notes: document.getElementById('f-notes').value,
+    driversig: document.getElementById('f-driversig').value,
+    inspectorsig: document.getElementById('f-inspectorsig').value
+  };
+}
+
+function buildCSV(meta) {
+  let rows = [['Section','Item','OOS Item','Status','Defect Note']];
+  Object.values(state).forEach(s => {
+    rows.push([s.section, s.fn, s.oos ? 'Yes' : 'No', s.status || 'Not checked', s.note || '']);
+  });
+
+  let csv = `Safety Blitz Inspection - Truck ${meta.truck || 'N/A'} - ${meta.datetime || ''}\n`;
+  csv += `Inspector: ${meta.inspector || ''}, Driver: ${meta.drivername || ''} (${meta.driverno || ''}), Location: ${meta.location || ''}, BU: ${meta.bu || ''}, Truck Type: ${meta.trucktype || ''}\n\n`;
+  csv += rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  csv += `\n\nNotes:,"${(meta.notes||'').replace(/"/g,'""')}"\n`;
+
+  const fname = `SafetyBlitz_${(meta.truck||'truck').replace(/\s+/g,'')}_${(meta.datetime||'').split('T')[0]||'undated'}.csv`;
+  return { csv, fname };
+}
+
+function triggerCSVDownload(csv, fname) {
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fname;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function buildEmailContent(meta, fname, attachReminder) {
+  const failedItems = Object.values(state).filter(s => s.status === 'fail');
+  const oosFailed = failedItems.filter(s => s.oos);
+  const passedCount = Object.values(state).filter(s => s.status === 'pass').length;
+
+  let subject = `Safety Blitz Inspection - Truck ${meta.truck || 'N/A'} - ${meta.datetime ? meta.datetime.split('T')[0] : 'undated'}`;
+  if (oosFailed.length > 0) subject = 'OOS ALERT: ' + subject;
+
+  let body = '';
+  if (attachReminder) {
+    body += `>>> IMPORTANT: A file named "${fname}" was just downloaded to your device. Please attach it to this email before sending. <<<\n\n`;
+  }
+  body += `SAFETY BLITZ VEHICLE INSPECTION REPORT\n`;
+  body += `========================================\n\n`;
+  body += `Date/Time: ${meta.datetime || 'N/A'}\n`;
+  body += `Truck #: ${meta.truck || 'N/A'}\n`;
+  body += `Inspector: ${meta.inspector || 'N/A'}\n`;
+  body += `Driver Name: ${meta.drivername || 'N/A'}\n`;
+  body += `Driver Number: ${meta.driverno || 'N/A'}\n`;
+  body += `Location: ${meta.location || 'N/A'}\n`;
+  body += `Business Unit: ${meta.bu || 'N/A'}\n`;
+  body += `Truck Type: ${meta.trucktype || 'N/A'}\n\n`;
+
+  if (oosFailed.length > 0) {
+    body += `*** OUT-OF-SERVICE ITEMS - IMMEDIATE ACTION REQUIRED ***\n`;
+    oosFailed.forEach(s => {
+      body += `  - ${s.fn}${s.note ? ' | Note: ' + s.note : ''}\n`;
+    });
+    body += `\n`;
+  }
+
+  const nonOosFailed = failedItems.filter(s => !s.oos);
+  if (nonOosFailed.length > 0) {
+    body += `FAILED ITEMS (repair within 3 days):\n`;
+    nonOosFailed.forEach(s => {
+      body += `  - ${s.fn}${s.note ? ' | Note: ' + s.note : ''}\n`;
+    });
+    body += `\n`;
+  }
+
+  body += `Summary: ${passedCount} passed, ${failedItems.length} failed\n\n`;
+
+  if (meta.notes) body += `Notes: ${meta.notes}\n\n`;
+
+  body += `Driver Signature: ${meta.driversig || '____________'}\n`;
+  body += `Inspector Signature: ${meta.inspectorsig || '____________'}\n`;
+
+  return { subject, body };
+}
+
+function checkComplete() {
+  const uncheckedCount = Object.values(state).filter(s => s.status === null).length;
+  if (uncheckedCount > 0) {
+    return confirm(`${uncheckedCount} item(s) are still unmarked (not Pass or Fail). Continue anyway?`);
+  }
+  return true;
+}
+
+function sendReportToSafety() {
+  const meta = getMeta();
+
+  if (!meta.trucktype) {
+    alert('Truck Type (IC or Company) is required before this report can be sent.');
+    document.getElementById('f-trucktype').focus();
+    return;
+  }
+
+  if (!checkComplete()) return;
+
+  const { csv, fname } = buildCSV(meta);
+  const { subject, body } = buildEmailContent(meta, fname, true);
+  const mailto = `mailto:safety2@unitedroad.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  // Both actions fire synchronously, in the same tap event. iOS Safari only
+  // trusts a mailto/window.location navigation as user-initiated if it
+  // happens inside the direct call stack of the tap — any setTimeout or
+  // other async gap here causes iPhone to silently block it (Android/desktop
+  // tolerate the delay, which is why this only showed up on iPhone).
+  window.location.href = mailto;
+  triggerCSVDownload(csv, fname);
+
+  document.getElementById('statusMsg').textContent =
+    `Downloaded ${fname} — opening your email client now. Remember to attach the file before sending.`;
+  setTimeout(() => { document.getElementById('statusMsg').textContent = ''; }, 7000);
+}
+
+function resetForm() {
+  if (!confirm('Reset the entire form? This clears all entries.')) return;
+  location.reload();
+}
+
+buildForm();
+updateOOSBanner();
+updateSummary();
+</script>
+
+</body>
+</html>
